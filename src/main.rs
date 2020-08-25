@@ -2,6 +2,7 @@ extern crate alsa;
 extern crate rust_gpiozero;
 
 use alsa::mixer::{Mixer, Selem, SelemChannelId, SelemId};
+use rust_gpiozero::input_devices::DigitalInputDevice;
 
 struct Sound<'a> {
     selem: Selem<'a>,
@@ -46,6 +47,62 @@ impl<'a> Sound<'a> {
         // This might rounddown, causing some inaccuracy but nothing catastrophic.
         self.set_volume(absolute_volume as i64)
     }
+
+    // A test that everything works as it is supposed to.
+    fn test(&self) -> bool {
+        let old_volume = self.get_volume();
+
+        let new_volume = 12;
+
+        self.set_volume(new_volume);
+        if old_volume != new_volume  {
+            return false;
+        };
+
+        self.set_volume_percent(self.get_volume_percent());
+        if self.get_volume() != new_volume {
+            return false;
+        };
+        return true;
+    }
+}
+
+struct Knob {
+    left : DigitalInputDevice,
+    right : DigitalInputDevice,
+    ticks: u8,
+    required_ticks: u8
+}
+
+impl Knob {
+    fn new(left_pin:u8, right_pin:u8, required_ticks:u8) -> Knob {
+        Knob {
+            left: DigitalInputDevice::new_with_pullup(left_pin),
+            right: DigitalInputDevice::new_with_pullup(right_pin),
+            ticks: 0,
+            required_ticks
+        }
+    }
+    fn update(&mut self) -> bool {
+        let l_status : bool  = self.left.is_active();
+        let r_status : bool  = self.right.is_active();
+        if l_status && r_status {
+            self.ticks += 1;
+
+            if self.ticks <= self.required_ticks {
+                print!("+\n");
+                self.ticks = 0;
+            }
+        } else if l_status && !r_status {
+            self.ticks = if self.ticks <= 0 { 0 } else {self.ticks - 1};
+
+            if self.ticks <= self.required_ticks {
+                print!("-\n");
+                self.ticks = 0;
+            }
+        }
+        return false;
+    }
 }
 
 fn main() {
@@ -55,15 +112,15 @@ fn main() {
     };
     let speaker = Sound::new(&mixer, "Speaker", SelemChannelId::FrontLeft);
 
-    speaker.set_volume(0);
+    if !speaker.test() {
+        panic!("Speaker not working correctly.");
+    }
 
-    print!("Current volume: {} or {}%\n", speaker.get_volume(), speaker.get_volume_percent());
+    print!("Listening for input.");
 
-    let new_volume = 12;
-    print!("Changing volume to: {}\n", new_volume);
-
-    speaker.set_volume(new_volume);
-    speaker.set_volume_percent(speaker.get_volume_percent());
-
-    print!("New volume: {} or {}%\n", speaker.get_volume(), speaker.get_volume_percent());
+    let mut knob = Knob::new(19, 26, 20);
+    loop {
+        knob.left.wait_for_active(Some(10000.0));
+        knob.update();
+    }
 }
