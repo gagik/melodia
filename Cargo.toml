@@ -1,0 +1,16 @@
+[package]
+name = "melodia"
+version = "0.1.0"
+authors = ["Gagik Amaryan"]
+edition = "2018"
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3
+
+[dependencies]
+rpi-led-matrix = { path = "rust-rpi-rgb-led-matrix" }
+alsa = "0.4.2"
+rust_gpiozero = "0.2.0"
