@@ -14,3 +14,4 @@ opt-level = 3
 rpi-led-matrix = { path = "rust-rpi-rgb-led-matrix" }
 alsa = "0.4.2"
 rust_gpiozero = "0.2.0"
+rand = "0.7.3"
