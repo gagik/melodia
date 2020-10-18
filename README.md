@@ -1,5 +1,5 @@
 # Melodia
-This project is meant to be a complete rewrite of the work I have done so far in Python & NodeJS for a project called [Melodia](https://gagikamaryan.com/melodya/), where I am turned an old Soviet radio into a smart speaker. The older project is now abandoned as I am focusing on this Rust version but you can view it [here](https://github.com/gagik/melodia-python-node).
+This project is meant to be a complete rewrite of the work I have done so far in Python & NodeJS for a project called [Melodia](https://gagikamaryan.com/melodya/), where I turned an old Soviet radio into a smart speaker. The older project is now abandoned as I am focusing on this Rust version but you can view it [here](https://github.com/gagik/melodia-python-node).
 
 [![Melodia Showcase](https://i.imgur.com/9qGICXv.png)](https://vimeo.com/457722159 "Watch Melodia Showcase!")
 
