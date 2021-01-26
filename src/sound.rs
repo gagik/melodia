@@ -1,6 +1,6 @@
 
 use alsa::mixer::{Mixer, Selem, SelemChannelId, SelemId};
-use rust_gpiozero::input_devices::DigitalInputDevice;
+use rppal::gpio::{Gpio, Level, Mode, InputPin};
 
 pub struct Speaker<'a> {
     selem: Selem<'a>,
@@ -66,39 +66,38 @@ impl<'a> Speaker<'a> {
 }
 
 pub struct Knob {
-    left : DigitalInputDevice,
-    right : DigitalInputDevice,
-    ticks: u8,
-    required_ticks: u8
+    left : InputPin,
+    right: InputPin,
+    gpio:Gpio,
+    state: u8
 }
 
 impl Knob {
-    pub fn new(left_pin:u8, right_pin:u8, required_ticks:u8) -> Self {
+    pub fn new(gpio:Gpio, left_pin:u8, right_pin:u8) -> Self {
         Knob {
-            left: DigitalInputDevice::new_with_pullup(left_pin),
-            right: DigitalInputDevice::new_with_pullup(right_pin),
-            ticks: 0,
-            required_ticks
+            left: gpio.get(left_pin).unwrap().into_input(),
+            right: gpio.get(right_pin).unwrap().into_input(),
+            state: 0,
+            gpio: gpio
         }
     }
-    pub fn update(&mut self) -> bool {
-        let l_status : bool  = self.left.is_active();
-        let r_status : bool  = self.right.is_active();
-        if l_status && r_status {
-            self.ticks += 1;
+    pub fn update(&mut self) -> i32 {
+       let mut s = self.state;
 
-            if self.ticks <= self.required_ticks {
-                print!("+\n");
-                self.ticks = 0;
-            }
-        } else if l_status && !r_status {
-            self.ticks = if self.ticks <= 0 { 0 } else {self.ticks - 1};
+       if self.left.is_low() {
+            s |= 0b100;
+       }
 
-            if self.ticks <= self.required_ticks {
-                print!("-\n");
-                self.ticks = 0;
-            }
+        if self.right.is_low() {
+            s |= 0b1000;
         }
-        return false;
+
+        self.state = s >> 2;
+
+        match s {
+            0b0001 | 0b0111 | 0b1000 | 0b1110 => -1,
+            0b0010 | 0b0100 | 0b1011 | 0b1101 => 1,
+            _ => 0,
+        }
     }
 }
