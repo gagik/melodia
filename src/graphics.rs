@@ -1,9 +1,9 @@
-use rpi_led_matrix::{LedCanvas};
-
+use rpi_led_matrix::{LedCanvas, LedColor};
 
 trait Renderer {
     fn render(&mut self) -> ();
 }
+
 
 pub struct Matrix {
     width:u8,
