@@ -1,6 +1,6 @@
 
 use alsa::mixer::{Mixer, Selem, SelemChannelId, SelemId};
-use rppal::gpio::{Gpio, Level, Mode, InputPin};
+use rppal::gpio::{Gpio, InputPin};
 
 pub struct Speaker<'a> {
     selem: Selem<'a>,

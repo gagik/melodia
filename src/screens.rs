@@ -1,3 +1,4 @@
+#![allow(non_snake_case)]
 use rpi_led_matrix::{LedColor, LedCanvas, LedMatrix};
 
 pub enum InstructionType {
@@ -18,6 +19,12 @@ pub struct Instruction {
     pub height: i32,
     pub hidden: bool,
     pub duration: i32,
+}
+
+impl Instruction {
+    pub fn setDuration(&mut self, d:i32) {
+        self.duration = d;
+    }
 }
 
 impl Default for Instruction {
@@ -45,41 +52,17 @@ pub struct Canvas {
     c: LedCanvas,
 }
 
-impl Canvas {
-    pub fn new(matrix:LedMatrix, width:u8, height:u8, offset_x:u8, offset_y:u8) -> Self {
-        Canvas {
-            width,
-            height,
-            offset_x,
-            offset_y,
-            c: matrix.canvas(),
-        }
-    }
-    pub fn runInstructions(&mut self, instructions:&Vec<Instruction>) {    
-        for inst in instructions 
-        {
-            match &inst.category {
-                InstructionType::Line => {                    
-                    self.c.draw_line(inst.x, inst.y, inst.y + inst.width-1, inst.y + inst.height-1, &inst.color)
-                },
-                InstructionType::Circle => {                    
-                    self.c.draw_circle(inst.x, inst.y, inst.width as u32 /2 , &inst.color)
-                },
-                InstructionType::Rectangle => {
-                    for i in inst.y..inst.y+inst.height {
-                        self.c.draw_line(inst.x, i, inst.x+inst.width-1, i, &inst.color)
-                    }
-                },
-                _ => {
-                    for pixel in &inst.pixels {
-                        let (x, y, color) = pixel;
-                        self.c.set(*x, *y, color);
-                    }
-                }
-            }
-        }
-    }
-}
+// impl Canvas {
+//     pub fn new(matrix:LedMatrix, width:u8, height:u8, offset_x:u8, offset_y:u8) -> Self {
+//         Canvas {
+//             width,
+//             height,
+//             offset_x,
+//             offset_y,
+//             c: matrix.canvas(),
+//         }
+//     }
+// }
 
 
 fn pixel(x:i32, y:i32, r:u8, g:u8, b:u8) -> (i32, i32, LedColor) {
@@ -129,13 +112,13 @@ fn circle(x1:i32, y1:i32, radius:i32, r:u8, g:u8, b:u8) -> Instruction {
 
 fn menu() -> Vec<Instruction> {
     let mut actions = Vec::new();
-    let mut test = Instruction::default();
-    test.pixels.push(pixel(5,5,255,0,0));
-    test.pixels.push(pixel(5,6,255,0,0));
-    actions.push(test);
-    actions.push(rect(10, 5, 5, 5, 0, 255, 0));
-    actions.push(line(0, 0, 32, 16, 200, 200, 100));
-    actions.push(circle(5, 5, 3, 0, 255, 255));
+    // let mut test = Instruction::default();
+    // test.pixels.push(pixel(5,5,255,0,0));
+    // test.pixels.push(pixel(5,6,255,0,0));
+    // actions.push(test);
+    // actions.push(rect(10, 5, 5, 5, 0, 255, 0));
+    // actions.push(line(0, 0, 32, 16, 200, 200, 100));
+    // actions.push(circle(5, 5, 3, 0, 255, 255));
     actions
 }
 
